@@ -15,7 +15,7 @@ class Invoice(models.Model):
     comments        = models.CharField(max_length=250, null=True, blank=True)
     discount        = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     amount          = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    paid          = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    paid            = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     status          = models.CharField(max_length=255, default='Pending')
     invoice_date    = models.DateField(blank=True, null=True)
     due_date        = models.DateField(null=True, blank=True)

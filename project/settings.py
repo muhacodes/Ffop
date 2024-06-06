@@ -32,6 +32,15 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'account.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "infomohacodes@gmail.com"
+EMAIL_HOST_PASSWORD = 'daupuibkxslbvhla'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'FFOP | 360'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -125,6 +134,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

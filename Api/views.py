@@ -5,10 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
 
+from account.models import User
 from Department.models import Department
 from Batch.models import Batch
 from Lesson.models import Lesson
 from Student.models import Student
+from account.serializers import UserSerializer
 
 class Home(APIView):
     def get(self, request, format=None):
@@ -21,6 +23,9 @@ class Home(APIView):
         data['total_batches'] = Batch.objects.count()
 
         data['total_students'] = Student.objects.count()
+
+        users = User.objects.all() 
+        data['total_users'] = UserSerializer(users, many=True).data
 
         # Potential Revenue (assuming price * students count per batch)
         # data['potential_revenue'] = Batch.objects.annotate(

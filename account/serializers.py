@@ -4,14 +4,25 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from datetime import datetime
 from rest_framework_simplejwt.settings import api_settings
+from django.contrib.auth.password_validation import validate_password
+
+
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import UpdateAPIView
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.models import User
+
 
 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.name', read_only=True)
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password', 'department', 'is_admin', 'department_name',)
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -75,3 +86,39 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['refresh_token_expires'] = (datetime.now() + refresh_token_lifetime).timestamp()
         
         return data
+    
+
+from django.core.exceptions import ValidationError as DjangoValidationError
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('old_password', 'password',)
+
+    def validate_password(self, value):
+        print(value)
+        raise serializers.ValidationError({"password": {'password' : 'something is surely wrong here'}})
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise ValidationError({"old_password": "Old password is not correct"})
+        return value
+
+
+    # def validate(self, attrs):
+    #     password = attrs.get('password')
+    #     if password:
+    #         try:
+    #             validate_password(password)
+    #         except DjangoValidationError as e:
+    #             raise serializers.ValidationError({"password": e.messages})
+    #     return attrs
+
+    # def update(self, instance, validated_data):
+    #     instance.set_password(validated_data['password'])
+    #     instance.save()
+    #     return instance

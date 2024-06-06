@@ -68,7 +68,7 @@ class BatchViewSet(viewsets.ModelViewSet):
                 lesson=batch.lesson,
                 amount=batch.lesson.price,
                 invoice_number= f'{student.firstname}-{student.dob}-{batch.end_date}',
-                created_by= User.objects.get(id=1)
+                created_by= request.user
             )
             
         except Student.DoesNotExist:

@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
+from Department.models import Department
 
 from django.contrib.auth.models import (
 	BaseUserManager, AbstractBaseUser
@@ -10,7 +11,7 @@ from django.contrib.auth.models import (
 # Create your models here.
 
 class UserManager(BaseUserManager):
-	def create_user(self, email, username, password=None):
+	def create_user(self, email, department, username, password=None):
 		"""
 		Creates and saves a User with the given email and password.
 		"""
@@ -18,9 +19,13 @@ class UserManager(BaseUserManager):
 			raise ValueError('Users must have an email address')
 		if not username:
 			raise ValueError('Users must have a username')
+
+		
 		user = self.model(
 			email=self.normalize_email(email),
-			username=username
+			username=username,
+			department=department
+			
 		)
 
 
@@ -54,13 +59,14 @@ class User(AbstractBaseUser):
 	active 			= models.BooleanField(default=True)
 	staff 			= models.BooleanField(default=False) # a admin user; non super-user
 	admin 			= models.BooleanField(default=False) # a superuser
+	department 		= models.ForeignKey(Department, null=True, blank=True, on_delete=models.CASCADE)
 
 	USERNAME_FIELD = 'email'
 
 	REQUIRED_FIELDS = ['username']
 
 	def __str__(self):
-		return self.username
+		return self.email
 
 
 	def has_perm(self, perm, obj=None):

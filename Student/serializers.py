@@ -1,14 +1,15 @@
 from rest_framework import serializers
+from django.db.models import Sum
 from .models import Student, Attachment
 from datetime import date, timedelta
 from Batch.serializers import BatchSerializer, Batch
 from Invoice.serialiers import  InvoiceSerializer, Invoice
 
 
-
 class StudentSerializer(serializers.ModelSerializer):
     batches = serializers.SerializerMethodField()
     invoices = serializers.SerializerMethodField()
+    total_amount_paid = serializers.SerializerMethodField()
 
 
     class Meta:
@@ -18,13 +19,18 @@ class StudentSerializer(serializers.ModelSerializer):
     def get_batches(self, obj):
         print(obj)
         # Assuming Batch has a ManyToManyField to Student without a related_name
-        batches = Batch.objects.filter(student=obj.id)
-        return BatchSerializer(batches, many=True).data
+        batches = Batch.objects.filter(student=obj.id).first()
+        return BatchSerializer(batches).data
 
     def get_invoices(self, obj):
         # Assuming Invoice has a ForeignKey to Student without a related_name
         invoices = Invoice.objects.filter(student=obj.id)
         return InvoiceSerializer(invoices, many=True).data
+    
+    def get_total_amount_paid(self, obj):
+        # Calculate total amount paid for all batches related to the student
+        total_amount_paid = Invoice.objects.filter(student=obj.id).aggregate(total_amount=Sum('paid'))['total_amount']
+        return total_amount_paid or 0
 
 
     def validate_dob(self, value):
